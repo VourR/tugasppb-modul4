@@ -1,8 +1,8 @@
 // src/components/minuman/RecipeGrid.jsx
-import { Clock, Star, ChefHat } from 'lucide-react';
+import { Clock, Star, ChefHat, Heart } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
-export default function RecipeGrid({ recipes }) {
+export default function RecipeGrid({ recipes, onSelectRecipe, onToggleFavorite, isFavorite, title }) {
   const [visibleCards, setVisibleCards] = useState(new Set());
   const cardRefs = useRef([]);
 
@@ -35,16 +35,20 @@ export default function RecipeGrid({ recipes }) {
   return (
     <section>
       <h1 className="text-3xl md:text-5xl font-bold text-slate-800 text-center mb-4">
-        Jelajahi Resep Minuman
+        {title ?? 'Jelajahi Resep Minuman'}
       </h1>
       <p className="text-center text-slate-500 max-w-2xl mx-auto mb-8">
-        Temukan minuman segar, hangat, dan kekinian. Mulai dari kopi hingga jus buah, semua ada di sini.
+        {title ? 'Temukan resep favorit yang sudah Anda tandai.' : 'Temukan minuman segar, hangat, dan kekinian. Mulai dari kopi hingga jus buah, semua ada di sini.'}
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
         {recipes.map((recipe, index) => (
           <div 
             key={recipe.id} 
             ref={el => cardRefs.current[index] = el}
+            onClick={() => onSelectRecipe && onSelectRecipe(recipe)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter') onSelectRecipe && onSelectRecipe(recipe); }}
             className={`group transform transition-all duration-700 ${
               visibleCards.has(index) 
                 ? 'translate-y-0 opacity-100' 
@@ -68,9 +72,18 @@ export default function RecipeGrid({ recipes }) {
                   <span className="text-xs font-semibold text-green-700 bg-green-100/90 px-2 md:px-3 py-1 md:py-1.5 rounded-full">
                     Minuman
                   </span>
-                  <div className="flex items-center space-x-1 bg-white/90 px-2 py-1 rounded-full">
-                    <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-500 fill-current" />
-                    <span className="text-xs md:text-sm font-semibold text-slate-700">4.7</span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onToggleFavorite && onToggleFavorite(recipe, recipe.__favType || 'minuman'); }}
+                      className="p-1 rounded-full bg-white/90 hover:bg-white"
+                      aria-label="Toggle favorite"
+                    >
+                      <Heart className={`w-4 h-4 ${isFavorite && isFavorite(recipe, recipe.__favType || 'minuman') ? 'text-red-500 fill-current' : 'text-slate-400'}`} />
+                    </button>
+                    <div className="flex items-center space-x-1 bg-white/90 px-2 py-1 rounded-full">
+                      <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-500 fill-current" />
+                      <span className="text-xs md:text-sm font-semibold text-slate-700">4.7</span>
+                    </div>
                   </div>
                 </div>
                 <h3 className="font-bold text-slate-800 mb-3 md:mb-4 text-base md:text-xl group-hover:text-green-600 transition-colors duration-200 line-clamp-2">

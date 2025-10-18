@@ -1,8 +1,8 @@
 // src/components/home/FeaturedMinumanSection.jsx
-import { Clock, Star, Coffee } from 'lucide-react';
+import { Clock, Star, Coffee, Heart } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
-export default function FeaturedMinumanSection({ featuredMinuman }) {
+export default function FeaturedMinumanSection({ featuredMinuman, onSelectRecipe, onToggleFavorite, isFavorite }) {
   const [visibleMinuman, setVisibleMinuman] = useState(new Set());
   const minumanRefs = useRef([]);
 
@@ -44,6 +44,10 @@ export default function FeaturedMinumanSection({ featuredMinuman }) {
           <div 
             key={recipe.id}
             ref={el => minumanRefs.current[index] = el}
+            onClick={() => onSelectRecipe && onSelectRecipe(recipe)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter') onSelectRecipe && onSelectRecipe(recipe); }}
             className={`group transform transition-all duration-700 ${
               visibleMinuman.has(index) 
                 ? 'translate-y-0 opacity-100' 
@@ -66,14 +70,23 @@ export default function FeaturedMinumanSection({ featuredMinuman }) {
 
                 <div className="relative z-10 p-4 md:p-8 flex-1 flex flex-col justify-center">
                   <div className="flex items-center justify-between mb-2 md:mb-4">
-                    <span className="text-xs font-semibold text-indigo-700 bg-indigo-100/90 px-2 md:px-3 py-1 md:py-1.5 rounded-full">
-                      Minuman
-                    </span>
-                    <div className="flex items-center space-x-1 bg-white/90 px-2 py-1 rounded-full">
-                      <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-500 fill-current" />
-                      <span className="text-xs md:text-sm font-semibold text-slate-700">4.7</span>
+                      <span className="text-xs font-semibold text-indigo-700 bg-indigo-100/90 px-2 md:px-3 py-1 md:py-1.5 rounded-full">
+                        Minuman
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <button
+                        onClick={(e) => { e.stopPropagation(); onToggleFavorite && onToggleFavorite(recipe, recipe.__favType || 'minuman'); }}
+                          className="p-1 rounded-full bg-white/90 hover:bg-white"
+                          aria-label="Toggle favorite"
+                        >
+                        <Heart className={`w-4 h-4 ${isFavorite && isFavorite(recipe, recipe.__favType || 'minuman') ? 'text-red-500 fill-current' : 'text-slate-400'}`} />
+                        </button>
+                        <div className="flex items-center space-x-1 bg-white/90 px-2 py-1 rounded-full">
+                          <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-500 fill-current" />
+                          <span className="text-xs md:text-sm font-semibold text-slate-700">4.7</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
                   
                   <h3 className="font-bold text-slate-800 mb-2 md:mb-4 text-sm md:text-xl group-hover:text-indigo-600 transition-colors duration-200 line-clamp-2">
                     {recipe.name}

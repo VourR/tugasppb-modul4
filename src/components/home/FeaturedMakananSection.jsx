@@ -1,8 +1,8 @@
 // src/components/home/FeaturedMakananSection.jsx
-import { Clock, Star, ChefHat } from 'lucide-react';
+import { Clock, Star, ChefHat, Heart } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
-export default function FeaturedMakananSection({ featuredMakanan }) {
+export default function FeaturedMakananSection({ featuredMakanan, onSelectRecipe, onToggleFavorite, isFavorite }) {
   const [visibleMakanan, setVisibleMakanan] = useState(new Set());
   const makananRefs = useRef([]);
 
@@ -44,6 +44,10 @@ export default function FeaturedMakananSection({ featuredMakanan }) {
           <div 
             key={recipe.id} 
             ref={el => makananRefs.current[index] = el}
+            onClick={() => onSelectRecipe && onSelectRecipe(recipe)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter') onSelectRecipe && onSelectRecipe(recipe); }}
             className={`group transform transition-all duration-700 ${
               visibleMakanan.has(index) 
                 ? 'translate-y-0 opacity-100' 
@@ -69,9 +73,18 @@ export default function FeaturedMakananSection({ featuredMakanan }) {
                   <span className="text-xs font-semibold text-blue-700 bg-blue-100/90 px-2 md:px-3 py-1 md:py-1.5 rounded-full">
                     Makanan
                   </span>
-                  <div className="flex items-center space-x-1 bg-white/90 px-2 py-1 rounded-full">
-                    <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-500 fill-current" />
-                    <span className="text-xs md:text-sm font-semibold text-slate-700">4.8</span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onToggleFavorite && onToggleFavorite(recipe, recipe.__favType || 'makanan'); }}
+                      className="p-1 rounded-full bg-white/90 hover:bg-white"
+                      aria-label="Toggle favorite"
+                    >
+                      <Heart className={`w-4 h-4 ${isFavorite && isFavorite(recipe, recipe.__favType || 'makanan') ? 'text-red-500 fill-current' : 'text-slate-400'}`} />
+                    </button>
+                    <div className="flex items-center space-x-1 bg-white/90 px-2 py-1 rounded-full">
+                      <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-500 fill-current" />
+                      <span className="text-xs md:text-sm font-semibold text-slate-700">4.8</span>
+                    </div>
                   </div>
                 </div>
                 
